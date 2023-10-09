@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: springflix-posters
+  cloud:
+    refresh:
+      enabled: false
+
+app:
+  tmdb:
+    api:
+      url: https://api.themoviedb.org
+      key:
+    images:
+      url: https://image.tmdb.org/t/p/w500/
+
+server:
+  port: ${PORT:8082}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
