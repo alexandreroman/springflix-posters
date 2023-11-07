@@ -6,6 +6,9 @@ spring:
       enabled: false
 
 app:
+  client:
+    connectTimeout: 30s
+    readTimeout: 30s
   tmdb:
     api:
       url: https://api.themoviedb.org
