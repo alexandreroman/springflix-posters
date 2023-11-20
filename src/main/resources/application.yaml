@@ -1,9 +1,6 @@
 spring:
   application:
     name: springflix-posters
-  cloud:
-    refresh:
-      enabled: false
 
 app:
   client:
