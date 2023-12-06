@@ -18,6 +18,8 @@ package com.vmware.tanzu.demos.springflix.posters.impl;
 
 import com.vmware.tanzu.demos.springflix.posters.model.MoviePoster;
 import com.vmware.tanzu.demos.springflix.posters.model.MoviePosterService;
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,16 +33,24 @@ import java.util.Optional;
 class TMDBMoviePosterService implements MoviePosterService {
     private final Logger logger = LoggerFactory.getLogger(TMDBMoviePosterService.class);
     private final TMDBClient client;
+    private final ObservationRegistry observationRegistry;
 
     private final URI imagesBaseUrl;
 
-    TMDBMoviePosterService(TMDBClient client, @Value("${app.tmdb.images.url}") String imagesBaseUrl) {
+    TMDBMoviePosterService(TMDBClient client, ObservationRegistry observationRegistry, @Value("${app.tmdb.images.url}") String imagesBaseUrl) {
         this.client = client;
+        this.observationRegistry = observationRegistry;
         this.imagesBaseUrl = URI.create(imagesBaseUrl);
     }
 
     @Override
     public Optional<MoviePoster> getMoviePoster(String movieId) {
+        return Observation.createNotStarted("tmdb.moviePosters", observationRegistry)
+                .highCardinalityKeyValue("movie", movieId)
+                .observe(() -> doGetMoviePoster(movieId));
+    }
+
+    private Optional<MoviePoster> doGetMoviePoster(String movieId) {
         try {
             final var mp = client.getMoviePoster(movieId);
             if (mp.posterPath() == null) {
